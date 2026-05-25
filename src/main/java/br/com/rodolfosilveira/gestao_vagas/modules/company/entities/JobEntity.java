@@ -3,6 +3,7 @@ package br.com.rodolfosilveira.gestao_vagas.modules.company.entities;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Column;
@@ -27,10 +28,15 @@ public class JobEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Schema(example = "Vaga para design")
     private String description;
+
+    @Schema(example = "GYMPASS, plano de saúde")
     private String benefits;
 
     @NotBlank(message = "Esse campo é obrigatório")
+    @Schema(example = "Senior")
     private String level;
 
     @ManyToOne()
