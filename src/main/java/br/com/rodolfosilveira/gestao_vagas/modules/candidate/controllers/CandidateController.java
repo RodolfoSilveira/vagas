@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import br.com.rodolfosilveira.gestao_vagas.modules.candidate.dto.ProfileCandidateResponseDTO;
+import br.com.rodolfosilveira.gestao_vagas.modules.candidate.entity.ApplyJobEntity;
+import br.com.rodolfosilveira.gestao_vagas.modules.candidate.useCases.ApplyJobCandidateUseCase;
 import br.com.rodolfosilveira.gestao_vagas.modules.candidate.useCases.ListAllJobsByFilterUseCase;
 import br.com.rodolfosilveira.gestao_vagas.modules.company.entities.JobEntity;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,6 +35,7 @@ public class CandidateController {
     @Autowired private CreateCandidateUseCase createCandidateUseCase;
     @Autowired private ProfileCandidateUseCase profileCandidateUseCase;
     @Autowired private ListAllJobsByFilterUseCase listAllJobsByFilterUseCase;
+    @Autowired private ApplyJobCandidateUseCase applyJobCandidateUseCase;
 
     @PostMapping("/")
     @Operation(summary = "Cadastro de candidato", description = "Essa função é responsável por cadastrar um candidato")
@@ -83,5 +86,20 @@ public class CandidateController {
     })
     public List<JobEntity> findJobByFilter(@RequestParam String filter) {
         return this.listAllJobsByFilterUseCase.execute(filter);
+    }
+
+    @PostMapping("/job/apply")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    @Operation(summary = "Inscrição do candidadto para uma vaga", description = "Essa função é responsável por realizar a inscrição do candidato em uma vaga.")
+    @SecurityRequirement(name = "jwt_auth")
+    public ResponseEntity<Object> applyJob(HttpServletRequest request, @RequestBody UUID idJob) {
+      var idCandidate = request.getAttribute("candidate_id");
+
+      try {
+        var result = this.applyJobCandidateUseCase.execute(UUID.fromString(idCandidate.toString()), idJob);
+        return ResponseEntity.ok().body(result);
+      } catch (Exception e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+      }
     }
 }
